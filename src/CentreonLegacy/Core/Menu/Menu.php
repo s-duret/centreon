@@ -141,19 +141,16 @@ class Menu
      * array(
      *   "1" => array(
      *     "label" => "<level_one_label>",
-     *     "url" => "<path_to_php_file>"
      *     "active" => "<true|false>"
      *     "color" => "<color_code>"
      *     "children" => array(
      *       "101" => array(
      *         "label" => "<level_two_label>",
-     *         "url" => "<path_to_php_file>",
      *         "active" => "<true|false>"
      *         "children" => array(
      *           "<group_name>" => array(
      *             "10101" => array(
      *               "label" => "level_three_label",
-     *               "url" => "<path_to_php_file>"
      *               "active" => "<true|false>"
      *             )
      *           )
@@ -169,7 +166,7 @@ class Menu
     {
         $groups = $this->getGroups();
 
-        $query = 'SELECT topology_name, topology_page, topology_url, topology_group, topology_order topology_parent '
+        $query = 'SELECT topology_name, topology_page, topology_group, topology_order topology_parent '
             . 'FROM topology '
             . 'WHERE topology_show = "1" '
             . 'AND topology_page IS NOT NULL';
@@ -178,7 +175,7 @@ class Menu
             $query .= $this->acl;
         }
 
-        $query .= ' ORDER BY topology_page';
+        $query .= ' ORDER BY LENGTH(topology_page), topology_group, topology_order';
         $stmt = $this->db->prepare($query);
 
         $stmt->execute();
@@ -201,7 +198,6 @@ class Menu
                 }
                 $menu[$row['topology_page']] = array(
                     'label' => $row['topology_name'],
-                    'url' => $row['topology_url'],
                     'active' => $active,
                     'color' => $this->getColor($row['topology_page']),
                     'children' => array()
@@ -212,7 +208,6 @@ class Menu
                 }
                 $menu[$matches[1]]['children'][$row['topology_page']] = array(
                     'label' => $row['topology_name'],
-                    'url' => $row['topology_url'],
                     'active' => $active,
                     'children' => array()
                 );
@@ -223,7 +218,6 @@ class Menu
                 $levelTwo = $matches[1] . $matches[2];
                 $levelThree = array(
                     'label' => $row['topology_name'],
-                    'url' => $row['topology_url'],
                     'active' => $active
                 );
                 if (!is_null($row['topology_group']) && isset($groups[$levelTwo][$row['topology_group']])) {
