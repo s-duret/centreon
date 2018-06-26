@@ -165,10 +165,11 @@ class CentreonTopCounter extends CentreonWebService
 
         global $centreon;
 
-        $query = "UPDATE contact SET contact_autologin_key = '" . $autoLoginKey . "'";
-        $query .= "WHERE contact_id = '" . $userId ."'";
+        $query = "UPDATE contact SET contact_autologin_key = ? " .
+            "WHERE contact_id = ?";
 
-        $res = $this->pearDB->query($query);
+        $stmt = $this->pearDB->prepare($query);
+        $res = $this->pearDB->execute($stmt, array($autoLoginKey, $userId));
 
         if (PEAR::isError($res)) {
             throw new \Exception('Error while update autologinKey ' . $autoLoginKey);
