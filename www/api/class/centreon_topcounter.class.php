@@ -280,7 +280,7 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method GET
      */
-    public function getPollersList()
+    public function getPollers()
     {
         $listType = array('configuration', 'stability', 'database', 'latency');
         if (!isset($this->arguments['type']) || !in_array($this->arguments['type'], $listType)) {
