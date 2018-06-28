@@ -392,16 +392,14 @@ class CentreonTopCounter extends CentreonWebService
                 $result['stability']['warning']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
-                    'status' => $poller['stability'],
-                    'information' => ''
+                    'freetime' => ''
                 );
                 $staWar++;
             } elseif ($poller['stability'] === 2) {
                 $result['stability']['critical']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
-                    'status' => $poller['stability'],
-                    'information' => ''
+                    'freetime' => ''
                 );
                 $staCri++;
             }
@@ -411,16 +409,14 @@ class CentreonTopCounter extends CentreonWebService
                 $result['database']['warning']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
-                    'status' => $poller['database']['state'],
-                    'information' => $poller['database']['time']
+                    'freetime' => $poller['database']['time']
                 );
                 $datWar++;
             } elseif ($poller['database']['state'] === 2) {
                 $result['database']['critical']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
-                    'status' => $poller['database']['state'],
-                    'information' => $poller['database']['time']
+                    'freetime' => $poller['database']['time']
                 );
                 $datCri++;
             }
@@ -430,33 +426,70 @@ class CentreonTopCounter extends CentreonWebService
                 $result['latency']['warning']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
-                    'status' => $poller['warning']['state'],
-                    'information' => $poller['warning']['time']
+                    'freetime' => $poller['warning']['time']
                 );
                 $latWar++;
             } elseif ($poller['latency']['state'] === 2) {
                 $result['latency']['critical']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
-                    'status' => $poller['warning']['state'],
-                    'information' => $poller['warning']['time']
+                    'freetime' => $poller['warning']['time']
                 );
                 $latCri++;
             }
         }
 
-        //total
-        $result['stability']['warning']['total'] = $staWar;
-        $result['stability']['critical']['total'] = $staCri;
-        $result['stability']['total'] = $staWar + $staCri;
+        //total and unset empty
+        $staTotal = $staWar + $staCri;
+        if ($staTotal === 0) {
+            unset($result['stability']);
+        } else {
+            if ($staWar === 0) {
+                unset($result['stability']['warning']);
+                $result['stability']['critical']['total'] = $staCri;
+            } elseif ($staCri === 0) {
+                unset($result['stability']['critical']);
+                $result['stability']['warning']['total'] = $staWar;
+            } else {
+                $result['stability']['warning']['total'] = $staWar;
+                $result['stability']['critical']['total'] = $staCri;
+            }
+            $result['stability']['total'] = $staTotal;
+        }
 
-        $result['database']['warning']['total'] = $datWar;
-        $result['database']['critical']['total'] = $datCri;
-        $result['database']['total'] = $datWar + $datCri;
+        $datTotal = $datWar + $datCri;
+        if ($datTotal === 0) {
+            unset($result['database']);
+        } else {
+            if ($datWar === 0) {
+                unset($result['database']['warning']);
+                $result['database']['critical']['total'] = $datCri;
+            } elseif ($datCri === 0) {
+                unset($result['database']['critical']);
+                $result['database']['warning']['total'] = $datWar;
+            } else {
+                $result['database']['warning']['total'] = $datWar;
+                $result['database']['critical']['total'] = $datCri;
+            }
+            $result['database']['total'] = $datTotal;
+        }
 
-        $result['latency']['warning']['total'] = $latWar;
-        $result['latency']['critical']['total'] = $latCri;
-        $result['latency']['total'] = $latWar + $latCri;
+        $latTotal = $latWar + $latCri;
+        if ($latTotal === 0) {
+            unset($result['latency']);
+        } else {
+            if ($latWar === 0) {
+                unset($result['latency']['warning']);
+                $result['latency']['critical']['total'] = $latCri;
+            } elseif ($latCri === 0) {
+                unset($result['latency']['critical']);
+                $result['latency']['warning']['total'] = $latWar;
+            } else {
+                $result['latency']['warning']['total'] = $latWar;
+                $result['latency']['critical']['total'] = $latCri;
+            }
+            $result['latency']['total'] = $latTotal;
+        }
 
         return $result;
     }
@@ -648,7 +681,7 @@ class CentreonTopCounter extends CentreonWebService
 
         /* Get status of pollers */
         $query = 'SELECT instance_id, last_alive, running FROM instances
-            WHERE deleted = 0 AND instance_id IN (' . join(', ', array_keys($listPoller)) . ')';
+            WHERE deleted = 0 AND instance_id IN (' . implode(', ', array_keys($listPoller)) . ')';
         $res = $this->pearDBMonitoring->query($query);
         if (PEAR::isError($res)) {
             throw new \RestInternalServerErrorException();
@@ -675,7 +708,7 @@ class CentreonTopCounter extends CentreonWebService
                 AND n.stat_key = "Average"
                 AND n.instance_id = i.instance_id
                 AND i.deleted = 0
-                AND i.instance_id IN (' . join(', ', array_keys($listPoller)) . ')';
+                AND i.instance_id IN (' . implode(', ', array_keys($listPoller)) . ')';
         $res = $this->pearDBMonitoring->query($query);
         if (PEAR::isError($res)) {
             throw new \RestInternalServerErrorException();
