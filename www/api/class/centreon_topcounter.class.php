@@ -339,7 +339,7 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method GET
      */
-    public function getPollersProblems()
+    public function getPollersListIssues()
     {
         if (!$this->hasAccessToPollers) {
             throw new \RestUnauthorizedException("You're not authorized to access poller datas");
