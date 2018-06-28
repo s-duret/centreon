@@ -389,7 +389,7 @@ class CentreonTopCounter extends CentreonWebService
         foreach ($pollers as $poller) {
             //stability
             if ($poller['stability'] === 1) {
-                $result['stability']['warning']['pollers'][] = array(
+                $result['stability']['warning']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
                     'status' => $poller['stability'],
@@ -397,7 +397,7 @@ class CentreonTopCounter extends CentreonWebService
                 );
                 $staWar++;
             } elseif ($poller['stability'] === 2) {
-                $result['stability']['critical']['pollers'][] = array(
+                $result['stability']['critical']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
                     'status' => $poller['stability'],
@@ -408,7 +408,7 @@ class CentreonTopCounter extends CentreonWebService
 
             //database
             if ($poller['database']['state'] === 1) {
-                $result['database']['warning']['pollers'][] = array(
+                $result['database']['warning']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
                     'status' => $poller['database']['state'],
@@ -416,7 +416,7 @@ class CentreonTopCounter extends CentreonWebService
                 );
                 $datWar++;
             } elseif ($poller['database']['state'] === 2) {
-                $result['database']['critical']['pollers'][] = array(
+                $result['database']['critical']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
                     'status' => $poller['database']['state'],
@@ -427,7 +427,7 @@ class CentreonTopCounter extends CentreonWebService
 
             //latency
             if ($poller['latency']['state'] === 1) {
-                $result['latency']['warning']['pollers'][] = array(
+                $result['latency']['warning']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
                     'status' => $poller['warning']['state'],
@@ -435,7 +435,7 @@ class CentreonTopCounter extends CentreonWebService
                 );
                 $latWar++;
             } elseif ($poller['latency']['state'] === 2) {
-                $result['latency']['critical']['pollers'][] = array(
+                $result['latency']['critical']['poller'][] = array(
                     'id' => $poller['id'],
                     'name' => $poller['name'],
                     'status' => $poller['warning']['state'],
@@ -451,11 +451,11 @@ class CentreonTopCounter extends CentreonWebService
         $result['stability']['total'] = $staWar + $staCri;
 
         $result['database']['warning']['total'] = $datWar;
-        $result['database']['warning']['total'] = $datCri;
+        $result['database']['critical']['total'] = $datCri;
         $result['database']['total'] = $datWar + $datCri;
 
         $result['latency']['warning']['total'] = $latWar;
-        $result['latency']['warning']['total'] = $latCri;
+        $result['latency']['critical']['total'] = $latCri;
         $result['latency']['total'] = $latWar + $latCri;
 
         return $result;
